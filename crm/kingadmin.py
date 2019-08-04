@@ -12,14 +12,16 @@ class CustomerAdmin(BaseKingAdmin):
     list_filter = ['source','consultant','status','date']
     search_fields = ['contact','consultant__name']
 
+"""
 class RoleAdmin(BaseKingAdmin):
     list_display = ['id', 'name', 'menus']
 
 class MenuAdmin(BaseKingAdmin):
     list_display = ['id', 'name', 'url_type', 'url_name']
+"""
 
 site.register(models.CustomerInfo,CustomerAdmin)
-site.register(models.Role, RoleAdmin)
-site.register(models.Menus, MenuAdmin)
+site.register(models.Role)
+site.register(models.Menus)
 site.register(models.UserProfile)
 

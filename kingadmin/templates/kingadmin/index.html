@@ -41,9 +41,6 @@
             <ul class="nav nav-sidebar">
                 <li class="active"><a href="https://v3.bootcss.com/examples/dashboard/#">Overview <span
                         class="sr-only">(current)</span></a></li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Reports</a></li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Analytics</a></li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Export</a></li>
 
                 {% for role in request.user.userprofile.role.select_related %}
                     {% for menu in role.menus.select_related %}

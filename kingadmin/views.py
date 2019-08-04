@@ -78,7 +78,7 @@ def get_orderby_result(request,querysets,admin_class):
     current_ordered_column = {}
     #通过前端获取到要排序的字段的索引（是个字符串）
     orderby_index = request.GET.get('o')
-    print('1', orderby_index)
+
     if orderby_index:
         print(orderby_index)
         #通过索引找到要排序的字段,因为索引有可能是负数也有可能是负数，要用绝对值，否则负值的时候取到了其它字段了
@@ -107,3 +107,50 @@ def get_searched_result(request,querysets,admin_class):
 
         return querysets.filter(q)
     return querysets
+
+from .form_handle import create_dynamic_model_form
+
+@login_required
+def table_obj_change(request,app_name,model_name,obj_id):
+    '''kingadmin 数据修改页'''
+
+    admin_class = site.enable_admins[app_name][model_name]
+    model_form = create_dynamic_model_form(admin_class)
+    #让表单变成是修改的表单
+    obj = admin_class.model.objects.get(id=obj_id)
+
+    #修改
+    if request.method == 'GET':
+        form_obj = model_form(instance=obj)
+
+    elif request.method == 'POST':
+        form_obj = model_form(instance=obj,data=request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            #修改后跳转到的页面
+            return redirect("/kingadmin/%s/%s/"%(app_name,model_name))
+
+    return render(request,'kingadmin/table_obj_change.html',locals())
+
+    admin_class = site.enable_admins[app_name][model_name]
+    model_form = create_dynamic_model_form(admin_class)
+    # 实例化
+    form_obj = model_form()
+    return render(request,'kingadmin/table_obj_change.html',locals())
+
+@login_required
+def table_obj_add(request,app_name,model_name):
+    '''kingadmin 数据添加'''
+
+    admin_class = site.enable_admins[app_name][model_name]
+    model_form = create_dynamic_model_form(admin_class)
+
+    if request.method == 'GET':
+        form_obj = model_form()
+    elif request.method == 'POST':
+        form_obj = model_form(data=request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            #跳转到的页面
+            return redirect("/kingadmin/%s/%s/"%(app_name,model_name))
+    return render(request, 'kingadmin/table_obj_add.html', locals())
