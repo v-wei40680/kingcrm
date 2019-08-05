@@ -152,3 +152,30 @@ def render_filtered_args(admin_class, render_html=True):
 def get_current_sorted_column_index(sorted_column):
     #三元运算，如果为True执行左边的，为False，执行右边的（''）
     return list(sorted_column.values())[0] if sorted_column else ''
+
+@register.simple_tag
+def get_obj_field_val(form_obj,field):
+    '''获取只读字段的值'''
+
+    return getattr(form_obj.instance,field)
+
+@register.simple_tag
+def get_available_m2m_data(field_name, form_obj, admin_class):
+    '''返回的是m2m字段关联表的所有数据'''
+    #获取字段的对象
+    field_obj = admin_class.model._meta.get_field(field_name)
+
+    #consult_courses = models.ManyToManyField('Course',verbose_name='咨询课程')
+    #consult_courses是一个m2m，通过consult_courses对象获取到Course（也就是获取到所有咨询的课程）
+    obj_list = set(field_obj.related_model.objects.all())
+    selected_data = set(getattr(form_obj.instance, field_name).all())
+
+    return obj_list - selected_data
+
+@register.simple_tag
+def get_selected_m2m_data(field_name,form_obj,admin_class):
+    '''返回已选的m2m数据'''
+    #获取被选中的数据
+    selected_data = getattr(form_obj.instance,field_name).all()
+
+    return selected_data
