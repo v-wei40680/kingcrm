@@ -10,8 +10,10 @@
 <div>
 delete {{ obj }}
 
+{% for obj in objs %}
 {% display_all_related_objs obj as all_related_obj_eles %}
 {{ all_related_obj_eles|safe }}
+{% endfor %}
 
 <form method="post">
     {% csrf_token %}

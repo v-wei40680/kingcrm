@@ -13,10 +13,15 @@ class CustomerAdmin(BaseKingAdmin):
     readonly_fields = ['contact', 'status']
     filter_horizontal = ['consult_courses']
 
-    actions = ['change_status']
+    actions = ['change_status', 'change_status_quit']
 
     def change_status(self, request, querysets):
         querysets.update(status=1)
+
+
+    def change_status_quit(self, request, querysets):
+        querysets.update(status=2)
+
 
 site.register(models.CustomerInfo,CustomerAdmin)
 site.register(models.Role)
