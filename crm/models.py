@@ -46,11 +46,11 @@ class CustomerInfo(models.Model):
 
 class Student(models.Model):
     '''学员表'''
-    customer = models.OneToOneField('CustomerInfo',verbose_name='客户',on_delete=models.CASCADE)
+    customer = models.ManyToManyField('CustomerInfo',verbose_name='客户')
     class_grades = models.ManyToManyField('ClassList',verbose_name='班级')
 
     def __str__(self):
-        return self.customer.name
+        return '%s'%self.customer
 
 
 class CustomerFollowUp(models.Model):

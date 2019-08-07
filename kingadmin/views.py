@@ -53,6 +53,7 @@ def get_filter_result(request,querysets):
 def table_obj_list(request, app_name, model_name):
     '''取出指定model里的数据返回给前端'''
     #拿到admin_class后，通过它找到拿到model
+    print(app_name, model_name)
     admin_class = site.enable_admins[app_name][model_name]
 
     if request.method == 'POST':
@@ -172,9 +173,8 @@ def table_obj_delete(request,app_name,model_name,obj_id):
     '''删除功能'''
     admin_class = site.enable_admins[app_name][model_name]
     obj = admin_class.model.objects.get(id=obj_id)
-    """
     if request.method == 'POST':
         obj.delete()
         return redirect("/kingadmin/%s/%s/" % (app_name, model_name))
-    """
+
     return render(request, 'kingadmin/table_obj_delete.html',locals())
