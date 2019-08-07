@@ -8,19 +8,15 @@ print('crm kingadmin....')
 #注册model
 class CustomerAdmin(BaseKingAdmin):
     list_display = ['name','source','contact_type','contact','consultant','consult_content','status','date']
-    # list_display = '__all__'
     list_filter = ['source','consultant','status','date']
     search_fields = ['contact','consultant__name']
     readonly_fields = ['contact', 'status']
     filter_horizontal = ['consult_courses']
 
-"""
-class RoleAdmin(BaseKingAdmin):
-    list_display = ['id', 'name', 'menus']
+    actions = ['change_status']
 
-class MenuAdmin(BaseKingAdmin):
-    list_display = ['id', 'name', 'url_type', 'url_name']
-"""
+    def change_status(self, request, querysets):
+        querysets.update(status=1)
 
 site.register(models.CustomerInfo,CustomerAdmin)
 site.register(models.Role)

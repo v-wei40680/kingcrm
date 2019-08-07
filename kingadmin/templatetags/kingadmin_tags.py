@@ -179,3 +179,34 @@ def get_selected_m2m_data(field_name,form_obj,admin_class):
     selected_data = getattr(form_obj.instance,field_name).all()
 
     return selected_data
+
+@register.simple_tag
+def display_all_related_objs(obj):
+    """
+    显示要被删除对象的所有关联对象
+    """
+    ele = "<ul><b style='color:red'>%s</b>" % obj
+
+    #获取所有反向关联的对象
+    for reversed_fk_obj in obj._meta.related_objects:
+        #获取所有反向关联对象的表名
+        related_table_name =  reversed_fk_obj.name
+        # 通过表名反向查所有关联的数据
+        related_lookup_key = "%s_set" % related_table_name
+        related_objs = getattr(obj,related_lookup_key).all()
+        ele += "<li>%s<ul> "% related_table_name
+        #get_internal_type(),获取字段的类型，如果是m2m，就不需要深入查找
+        if reversed_fk_obj.get_internal_type() == "ManyToManyField":  # 不需要深入查找
+            for i in related_objs:
+                ele += "<li><a href='/kingadmin/%s/%s/%s/change/'>%s</a> 记录里与[%s]相关的的数据将被删除</li>" \
+                       % (i._meta.app_label,i._meta.model_name,i.id,i,obj)
+        #如果不是m2m，就递归查找所有关联的数据
+        else:
+            for i in related_objs:
+                ele += "<li><a href='/kingadmin/%s/%s/%s/change/'>%s</a></li>" \
+                    %(i._meta.app_label, i._meta.model_name,i.id,i)
+                #递归查找
+                ele += display_all_related_objs(i)
+        ele += "</ul></li>"
+    ele += "</ul>"
+    return ele

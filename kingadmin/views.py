@@ -1,13 +1,16 @@
+import json
+
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 
 from kingadmin import app_setup
+from kingadmin.sites import site
+from .form_handle import create_dynamic_model_form
 
 app_setup.kingadmin_auto_discover()
-
-from kingadmin.sites import site
 
 print('site', site.enable_admins)
 
@@ -28,7 +31,6 @@ def acc_login(request):
             error_msg = '用户名或密码错误！'
 
     return render(request,'kingadmin/login.html',{'error_msg':error_msg})
-
 
 def acc_logout(request):
     logout(request)
@@ -52,6 +54,20 @@ def table_obj_list(request, app_name, model_name):
     '''取出指定model里的数据返回给前端'''
     #拿到admin_class后，通过它找到拿到model
     admin_class = site.enable_admins[app_name][model_name]
+
+    if request.method == 'POST':
+        selected_action = request.POST.get('action')
+        selected_ids = json.loads(request.POST.get('selected_ids'))
+        if not selected_action:
+            if selected_ids:
+                admin_class.model.objects.filter(id__in=selected_ids).delete()
+        else:
+            selected_objs = admin_class.model.objects.filter(id__in=selected_ids)
+            admin_action_func = getattr(admin_class, selected_action)
+            response = admin_action_func(request, selected_objs)
+            if response:
+                return response
+
     querysets = admin_class.model.objects.all()
     querysets,filter_conditions = get_filter_result(request,querysets)
     admin_class.filter_conditions = filter_conditions
@@ -62,7 +78,7 @@ def table_obj_list(request, app_name, model_name):
     querysets, sorted_column = get_orderby_result(request, querysets, admin_class)
 
     admin_class.search_key = request.GET.get('_q', '')
-    paginator = Paginator(querysets, 2)
+    paginator = Paginator(querysets, admin_class.list_per_page)
     page = request.GET.get('page')
     try:
         querysets = paginator.page(page)
@@ -92,8 +108,6 @@ def get_orderby_result(request,querysets,admin_class):
     else:
         return querysets,current_ordered_column
 
-from django.db.models import Q
-
 def get_searched_result(request,querysets,admin_class):
     '''搜索'''
 
@@ -108,7 +122,22 @@ def get_searched_result(request,querysets,admin_class):
         return querysets.filter(q)
     return querysets
 
-from .form_handle import create_dynamic_model_form
+@login_required
+def table_obj_add(request,app_name,model_name):
+    '''kingadmin 数据添加'''
+
+    admin_class = site.enable_admins[app_name][model_name]
+    model_form = create_dynamic_model_form(admin_class, form_add=True)
+
+    if request.method == 'GET':
+        form_obj = model_form()
+    elif request.method == 'POST':
+        form_obj = model_form(data=request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            #跳转到的页面
+            return redirect("/kingadmin/%s/%s/"%(app_name,model_name))
+    return render(request, 'kingadmin/table_obj_add.html', locals())
 
 @login_required
 def table_obj_change(request,app_name,model_name,obj_id):
@@ -139,18 +168,13 @@ def table_obj_change(request,app_name,model_name,obj_id):
     return render(request,'kingadmin/table_obj_change.html',locals())
 
 @login_required
-def table_obj_add(request,app_name,model_name):
-    '''kingadmin 数据添加'''
-
+def table_obj_delete(request,app_name,model_name,obj_id):
+    '''删除功能'''
     admin_class = site.enable_admins[app_name][model_name]
-    model_form = create_dynamic_model_form(admin_class, form_add=True)
-
-    if request.method == 'GET':
-        form_obj = model_form()
-    elif request.method == 'POST':
-        form_obj = model_form(data=request.POST)
-        if form_obj.is_valid():
-            form_obj.save()
-            #跳转到的页面
-            return redirect("/kingadmin/%s/%s/"%(app_name,model_name))
-    return render(request, 'kingadmin/table_obj_add.html', locals())
+    obj = admin_class.model.objects.get(id=obj_id)
+    """
+    if request.method == 'POST':
+        obj.delete()
+        return redirect("/kingadmin/%s/%s/" % (app_name, model_name))
+    """
+    return render(request, 'kingadmin/table_obj_delete.html',locals())
