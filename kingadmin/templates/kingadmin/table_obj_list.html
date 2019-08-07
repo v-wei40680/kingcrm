@@ -5,7 +5,12 @@
 
 {% block right-content-container %}
 <h2 class="page-header">app</h2>
-
+<ol class="breadcrumb">
+    <li><a href="/kingadmin/">Home</a></li>
+    <li><a href="/kingadmin/{{ app_name }}">{{ app_name }}</a></li>
+    <li class="active">{% get_model_verbose_name admin_class %}</li>
+</ol>
+<h4 class="page-header">修改{{ form_obj.instance }}</h4>
 <div>
     {#{{ querysets }}#}
     <form action="">

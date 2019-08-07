@@ -168,17 +168,20 @@ def get_available_m2m_data(field_name, form_obj, admin_class):
     #consult_courses = models.ManyToManyField('Course',verbose_name='咨询课程')
     #consult_courses是一个m2m，通过consult_courses对象获取到Course（也就是获取到所有咨询的课程）
     obj_list = set(field_obj.related_model.objects.all())
-    selected_data = set(getattr(form_obj.instance, field_name).all())
-
-    return obj_list - selected_data
+    if form_obj.instance.id:
+        selected_data = set(getattr(form_obj.instance, field_name).all())
+        return obj_list - selected_data
+    else:
+        return obj_list
 
 @register.simple_tag
 def get_selected_m2m_data(field_name,form_obj,admin_class):
     '''返回已选的m2m数据'''
     #获取被选中的数据
-    selected_data = getattr(form_obj.instance,field_name).all()
-
-    return selected_data
+    if form_obj.instance.id:
+        selected_data = getattr(form_obj.instance,field_name).all()
+        return selected_data
+    return []
 
 @register.simple_tag
 def display_all_related_objs(obj):
@@ -210,3 +213,8 @@ def display_all_related_objs(obj):
         ele += "</ul></li>"
     ele += "</ul>"
     return ele
+
+
+@register.simple_tag
+def get_model_verbose_name(admin_class):
+    return admin_class.model._meta.verbose_name

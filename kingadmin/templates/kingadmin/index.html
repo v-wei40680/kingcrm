@@ -39,16 +39,16 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="https://v3.bootcss.com/examples/dashboard/#">Overview <span
-                        class="sr-only">(current)</span></a></li>
-
-                {% for role in request.user.userprofile.role.select_related %}
+                {% for role in  request.user.userprofile.role.select_related %}
                     {% for menu in role.menus.select_related %}
-                        <li><a href="{% if menu.url_type == 0 %}{{ menu.url_name }}{% else %}{% url menu.url_name %}{% endif %}">{{ menu.name }}</a></li>
+                        {% if request.path == menu.url_name %}
+                            <li class="active"><a href="{% if menu.url_type == 0 %}{{ menu.url_name }}{% else %}{% url menu.url_name %}{% endif %}">{{ menu.name }}</a></li>
+                        {% else %}
+                            <li ><a href="{% if menu.url_type == 0 %}{{ menu.url_name }}{% else %}{% url menu.url_name %}{% endif %}">{{ menu.name }}</a></li>
+                        {% endif %}
                     {% endfor %}
-
                 {% endfor %}
-            </ul>
+            </ul> 
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             {% block right-content-container %}

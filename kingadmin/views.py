@@ -53,7 +53,6 @@ def get_filter_result(request,querysets):
 def table_obj_list(request, app_name, model_name):
     '''取出指定model里的数据返回给前端'''
     #拿到admin_class后，通过它找到拿到model
-    print(app_name, model_name)
     admin_class = site.enable_admins[app_name][model_name]
 
     if request.method == 'POST':
@@ -88,7 +87,7 @@ def table_obj_list(request, app_name, model_name):
     except EmptyPage:
         querysets = paginator.page(paginator.num_pages)
 
-    return render(request, 'kingadmin/table_obj_list.html',{'querysets':querysets,'admin_class':admin_class, 'sorted_column': sorted_column})
+    return render(request, 'kingadmin/table_obj_list.html', locals())
 
 def get_orderby_result(request,querysets,admin_class):
     '''排序'''
