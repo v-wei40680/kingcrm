@@ -7,15 +7,16 @@
 <h2 class="page-header">app</h2>
 <ol class="breadcrumb">
     <li><a href="/kingadmin/">Home</a></li>
-    <li><a href="/kingadmin/{{ app_name }}">{{ app_name }}</a></li>
+    <li><a href="/kingadmin/">{{ app_name }}</a></li>
     <li class="active">{% get_model_verbose_name admin_class %}</li>
+    <li><a href="/kingadmin/{{ app_name }}/{{ model_name }}/add">add</a></li>
 </ol>
 <h4 class="page-header">修改{{ form_obj.instance }}</h4>
 <div>
     {#{{ querysets }}#}
     <form action="">
-        <input type="search" placeholder="{% for s in admin_class.search_fields %}{{ s }},{% endfor %}" name="_q" value="{{ admin_class.search_key }}">
-        <input type="submit" value="Search">
+        <input type="search" style="width: 30em" placeholder="{% for s in admin_class.search_fields %}{{ s }},{% endfor %}" name="_q" value="{{ admin_class.search_key }}">
+        <input type="submit" class="btn btn-success" value="Search">
         {% for k, v in admin_class.filter_conditions.items %}
             <input type="hidden" name="{{ k }}" value="{{ v }}">
         {% endfor %}

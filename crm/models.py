@@ -28,7 +28,7 @@ class CustomerInfo(models.Model):
     contact_type_choices = ((0,'qq'),(1,'微信'),(2,'手机'))
     contact_type = models.SmallIntegerField(choices=contact_type_choices,default=0)
     contact = models.CharField('联系方式',max_length=64,unique=True)
-    source_choices = ((0,'qq群'),(1,'51CTO'),(2,'百度推广'),(3,'知乎'),(4,'转介绍'),(5,'其它'),)
+    source_choices = ((6, '微信'),(0,'qq群'),(1,'51CTO'),(2,'百度推广'),(3,'知乎'),(4,'转介绍'),(5,'其它'),)
     source = models.SmallIntegerField('客户来源',choices=source_choices)
     #关联自己，如果是转介绍（介绍人已经是学员，然后介绍别人过来学习），需要填写转介绍人的信息，不是转介绍，这里就可以为空
     referral_from = models.ForeignKey('self',blank=True,null=True,verbose_name='转介绍',on_delete=models.CASCADE)
@@ -38,6 +38,11 @@ class CustomerInfo(models.Model):
     status_choices = ((0,'未报名'),(1,'已报名'),(2,'已经退学'))
     status = models.SmallIntegerField('客户状态',choices=status_choices)
     consultant = models.ForeignKey('UserProfile',verbose_name='课程顾问',on_delete=models.CASCADE)
+    
+    id_num = models.CharField('身份证号',max_length=128,blank=True,null=True)
+    emergency_contact = models.PositiveIntegerField('紧急联络人手机号',blank=True,null=True)
+    sex_choices = ((0,'男'),(1,'女'))
+    sex = models.PositiveSmallIntegerField(choices=sex_choices,verbose_name='性别',blank=True,null=True)
     date = models.DateField('创建的时间',auto_now_add=True)
 
     def __str__(self):
@@ -46,8 +51,8 @@ class CustomerInfo(models.Model):
 
 class Student(models.Model):
     '''学员表'''
-    customer = models.ManyToManyField('CustomerInfo',verbose_name='客户')
-    class_grades = models.ManyToManyField('ClassList',verbose_name='班级')
+    customer = models.ForeignKey('CustomerInfo',verbose_name='客户', on_delete=models.CASCADE)
+    class_grades = models.ForeignKey('ClassList',verbose_name='班级', on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s'%self.customer
@@ -87,6 +92,7 @@ class ClassList(models.Model):
     start_date = models.DateField('开班日期',)
     #毕业日期因为不固定，所以可以为空
     graduate_date = models.DateField('毕业日期',blank=True,null=True)
+    contract_template = models.ForeignKey('ContractTemplate', blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         #班级名是课程名+第几期拼接起来的
@@ -170,3 +176,38 @@ class Menus(models.Model):
     class Meta:
         unique_together = ('name','url_name')
 
+class ContractTemplate(models.Model):
+    '''存储合同模板'''
+    name = models.CharField(max_length=64)
+    content = models.TextField()
+    date = models.DateField(auto_now_add=True)
+
+
+class StudentEnrollment(models.Model):
+    """学员报名表"""
+    customer = models.ForeignKey('CustomerInfo',on_delete=models.CASCADE)
+    class_grade = models.ForeignKey('ClassList',on_delete=models.CASCADE)
+    consultant = models.ForeignKey('UserProfile',on_delete=models.CASCADE)
+    contract_agreed = models.BooleanField(default=False)
+    contract_signed_date = models.DateTimeField(blank=True,null=True)
+    contract_approved = models.BooleanField(default=False)
+    consultant_approved_date = models.DateTimeField('合同审核时间',blank=True,null=True)
+
+    class Meta:
+        unique_together = ('customer','class_grade')
+
+    def __str__(self):
+        return '%s'% self.customer
+
+
+class PaymentRecord(models.Model):
+    '''存储学员缴费记录'''
+    enrollment = models.ForeignKey('StudentEnrollment',on_delete=models.CASCADE)
+    payment_type_choices = ((0,'报名费'),(1,'学费'),(2,'退费'))
+    payment_type = models.SmallIntegerField(choices=payment_type_choices,default=0)
+    amount = models.IntegerField('费用',default=500)
+    consultant = models.ForeignKey('UserProfile',on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '%s' %self.enrollment

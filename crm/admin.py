@@ -14,6 +14,9 @@ admin.site.register(StudyRecord)
 admin.site.register(Branch)
 admin.site.register(Menus)
 admin.site.register(UserProfile)
+admin.site.register(ContractTemplate)
+admin.site.register(StudentEnrollment)
+admin.site.register(PaymentRecord)
 
 
 class CustomerAdmin(admin.ModelAdmin):
