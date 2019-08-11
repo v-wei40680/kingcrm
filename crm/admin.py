@@ -26,7 +26,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_filter = ['source','consultant','status','date']
     #搜索，consultant是外键，必须加“__字段名”
     search_fields = ['contact','consultant__name']
-    readonly_fields = ['contact', 'status']
+    # readonly_fields = ['contact', 'status']
     filter_horizontal = ['consult_courses']
     list_per_page = 8
     actions = ['change_status',]

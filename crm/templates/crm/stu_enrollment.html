@@ -37,7 +37,9 @@
 </form>
 
 {% if enrollment_link %}
-<p>请将此报名链接复制并发送给学员填写 {{ enrollment_link }}</p>
+<p>请将此报名链接复制并发送给学员填写 
+    <a href="{{ enrollment_link }}" target="_blank">报名链接</a>
+</p>
 {% endif %}
 
 {% endblock %}

@@ -126,3 +126,6 @@ STATICFILES_DIRS = (
 )
 
 LOGIN_URL = '/login/'
+
+#学员个人信息图片上传路径
+CRM_FILE_UOLOAD_DIR = os.path.join(BASE_DIR,'crm/upload_files/enrollment_data',)

@@ -52,7 +52,7 @@ class CustomerInfo(models.Model):
 class Student(models.Model):
     '''学员表'''
     customer = models.ForeignKey('CustomerInfo',verbose_name='客户', on_delete=models.CASCADE)
-    class_grades = models.ForeignKey('ClassList',verbose_name='班级', on_delete=models.CASCADE)
+    class_grades = models.ManyToManyField('ClassList',verbose_name='班级')
 
     def __str__(self):
         return '%s'%self.customer

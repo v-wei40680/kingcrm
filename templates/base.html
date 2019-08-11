@@ -25,10 +25,9 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
-
-
     <script src="{% static 'js/ie-emulation-modes-warning.js' %}"></script>
 
+    {% block extra-css %}{% endblock %}
 </head>
 
 <body>
@@ -45,7 +44,7 @@
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
-
+    {% block extra-js %}{% endblock %}
 </body>
 
 </html>
